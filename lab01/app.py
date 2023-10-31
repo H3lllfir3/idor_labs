@@ -1,85 +1,73 @@
-from fastapi import FastAPI, Request, Form, Depends, HTTPException, status
-from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
-from starlette.responses import RedirectResponse
-from faker import Faker 
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask_sqlalchemy import SQLAlchemy
 
-app = FastAPI()
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your_secret_key'  
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'  
+
+db = SQLAlchemy(app)
 
 
-fake = Faker()
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(80), nullable=False)
+    address = db.Column(db.String(120), nullable=False)
+    phone = db.Column(db.String(20), nullable=False)
 
-# In-memory database
-users_db = {
-    1: {
-        "id": 1,
-        "username": "alex",
-        "email": "alex@email.com",
-        "phone": "001-427-216-6063x8915",
-        "address": "18647 Travis Unions\nNguyenhaven, ND 55081"
-    },
-    2: {
-        "id": 1,
-        "username": fake.user(),
-        "email": fake.email(),
-        "phone": fake.phone_number(),
-        "address": fake.address()
-    }
-}
-def get_user_data(user_id):
-    if user_id == 1:
-        return {
-            "id": 1,
-            "username": "alex",
-            "email": "alex@email.com",
-            "phone": "001-427-216-6063x8915", 
-            "address": "18647 Travis Unions\nNguyenhaven, ND 55081"
+# Routes
+@app.route('/')
+def index():
+    
+    return render_template('index.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username, password=password).first()
+        if user:
+            session['user'] = user.username
+            flash('Logged in successfully', 'success')
+            return redirect(url_for('index'))
+        flash('Login failed. Check your credentials.', 'danger')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('index'))
+
+@app.route('/api/user/<int:id>', methods=['GET'])
+def profile_data(id):
+    
+    current_user = User.query.get(id)
+    
+    session_user = User.query.filter_by(username=session['user']).first()
+
+    if current_user:
+
+        user_data = {
+            'username': current_user.username,
+            'address': current_user.address,
+            'phone': current_user.phone
         }
-    else:
-        return {
-            "id": user_id,
-            "username": fake.user().split(" ")[0],
-            "email": fake.email(),
-            "phone": fake.phone_number(),
-            "address": fake.address()  
-        }
+        return jsonify(user_data)
+
+    return jsonify({'error': 'Not authenticated or unauthorized'})
 
 
-class User(BaseModel):
-    username: str
-    password: str
-
-templates = Jinja2Templates(directory="templates")
-
-@app.get("/", response_class=templates.TemplateResponse)
-async def index(request: Request):
-    return {"request": request, "template": "index.html"}
-
-
-@app.get("/profile/{user_id}", response_class=templates.TemplateResponse)
-async def profile(request: Request, user_id: int):
-    user_data = users_db.get(user_id)
-    if not user_data:
-        raise HTTPException(status_code=404, detail="User not found")
-    return {"request": request, "template": "profile.html", "user": user_data}
+@app.route('/profile', methods=['GET'])
+def profile_template():
+    print("profile_template")
+    if 'user' in session:
+        username = User.query.filter_by(username=session['user']).first()
+        if username:
+            return render_template('profile.html', user=username)
+    return redirect(url_for('login'))
 
 
-@app.get("/login", response_class=templates.TemplateResponse)
-async def login_page(request: Request):
-    return {"request": request, "template": "login.html"}
+if __name__ == '__main__':
+    app.run()
 
-@app.post("/login")
-async def login(user: User, request: Request):
-    if user.username == "alex" and user.password == "alex1234":
-        request.session['user'] = user.username
-        return RedirectResponse(url="/profile/1")
-    return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-
-@app.get("/logout")
-async def logout(request: Request):
-    request.session.pop('user', None)
-    return RedirectResponse(url="/")
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)

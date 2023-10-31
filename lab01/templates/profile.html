@@ -1,0 +1,59 @@
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+    <title>Home</title>
+</head>
+
+<body>
+    <h1>Welcome to the Home Page</h1>
+    {% if username %}
+    <p>Hello, {{ username }}!</p>
+    <a href="/profile">Profile</a>
+    <a href="/logout">Logout</a> {% else %}
+    <p>You are not logged in.</p>
+    <a href="/login">Login</a> {% endif %}
+</body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Profile</title>
+</head>
+
+<body>
+    {% if username %}
+    <a href="/login">Login</a> {% else %}
+    <p>You are not logged in.</p>
+    <a href="/logout">Logout</a> {% endif %}
+    <h1>User Profile</h1>
+    <div id="user-data">
+        <p>Loading user data...</p>
+    </div>
+    <script>
+        const userDataDiv = document.getElementById('user-data');
+        const userID = 1;
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', `/api/user/${userID}`);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    const user_data = JSON.parse(xhr.responseText);
+                    userDataDiv.innerHTML = `
+                        <p>Hello, ${user_data.username}!</p>
+                        <p>Address: ${user_data.address}</p>
+                        <p>Phone: ${user_data.phone}</p>
+                    `;
+                } else {
+                    userDataDiv.innerHTML = 'Error fetching user data';
+                }
+            }
+        };
+        xhr.send();
+    </script>
+</body>
+
+</html>

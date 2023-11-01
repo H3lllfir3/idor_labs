@@ -43,8 +43,6 @@ def logout():
 def profile_data(id):
     
     current_user = User.query.get(id)
-    
-    session_user = User.query.filter_by(username=session['user']).first()
 
     if current_user:
 

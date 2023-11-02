@@ -58,7 +58,9 @@ async def index(request: Request):
 @app.post("/api/login")
 async def login(username: str = Form(...), password: str = Form(...)):
     db = SessionLocal()
+    print(username, password)
     user = db.query(User).filter(User.username == username, User.password == password).first()
+    print(user)
     db.close()
     if user:
         response = RedirectResponse(url="/", status_code=302)

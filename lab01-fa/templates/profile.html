@@ -43,14 +43,13 @@
         </div>
     </div>
     <script>
-        const userID = 1; // Change this to the actual user's ID
         const usernameInput = document.getElementById('username');
         const nameInput = document.getElementById('name');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
 
         const xhr = new XMLHttpRequest();
-        xhr.open('GET', `/api/user/${userID}`);
+        xhr.open('GET', '/api/user/me');
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {

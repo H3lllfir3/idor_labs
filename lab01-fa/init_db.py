@@ -11,7 +11,7 @@ fake = Faker()
 
 engine = create_engine(DATABASE_URL)
 
-# Create the database schema
+
 Base.metadata.create_all(engine)
 
 # Insert the default user data
@@ -24,7 +24,7 @@ default_user_data = {
     'phone': '555-123-4567'
 }
 
-# Insert random fake user data
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 conn = engine.connect()
 
@@ -43,5 +43,5 @@ for _ in range(9):
     query = sqlalchemy.insert(User).values(**user_data)
     conn.execute(query)
 
-# Commit the transaction and close the connection
+
 conn.close()

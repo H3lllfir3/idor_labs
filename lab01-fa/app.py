@@ -33,7 +33,7 @@ class User(Base):
     phone = Column(String, nullable=False)
 
 
-# Templates setup
+
 templates = Jinja2Templates(directory="templates")
 
 
@@ -73,21 +73,39 @@ async def logout(request: Request):
     return response
 
 @app.get("/api/user/me", response_model=dict)
-async def profile_data(id: int):
-    db = SessionLocal()
-    current_user = db.query(User).filter(User.id == id).first()
-    db.close()
+async def profile_data(user: str = Cookie(None)):
+    if user:
+        db = SessionLocal()
+        current_user = db.query(User).filter(User.username == user).first()
+        db.close()
 
-    if current_user:
-        user_data = {
-            'username': current_user.username,
-            'password': current_user.password,
-            'name': current_user.name,
-            'email': current_user.email
-        }
-        return user_data
+        if current_user:
+            user_data = {
+                'username': current_user.username,
+                'password': current_user.password,
+                'name': current_user.name,
+                'email': current_user.email
+            }
+            return user_data
 
     raise HTTPException(status_code=401, detail="Not authenticated or unauthorized")
+
+@app.get("/api/user/{user_id}", response_model=dict)
+async def get_user_by_id(user_id: int):
+    db = SessionLocal()
+    user_data = db.query(User).filter(User.id == user_id).first()
+    db.close()
+
+    if user_data:
+        user_info =  {
+                'username': user_data.username,
+                'password': user_data.password,
+                'name': user_data.name,
+                'email': user_data.email
+            }
+        return user_info
+
+    raise HTTPException(status_code=404, detail=f"User with ID {user_id} not found")
 
 @app.get("/profile", response_class=templates.TemplateResponse)
 async def profile_template(request: Request, user: str = Cookie(None)):

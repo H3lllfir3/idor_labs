@@ -72,7 +72,7 @@ async def logout(request: Request):
     response.delete_cookie("user")
     return response
 
-@app.get("/api/user/{id}", response_model=dict)
+@app.get("/api/user/me", response_model=dict)
 async def profile_data(id: int):
     db = SessionLocal()
     current_user = db.query(User).filter(User.id == id).first()
@@ -102,4 +102,4 @@ async def profile_template(request: Request, user: str = Cookie(None)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=5000)

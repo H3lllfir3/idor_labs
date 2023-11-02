@@ -8,7 +8,7 @@ RUN pip install -r requirements.txt
 
 COPY . /app
 
-RUN python init_db.py
+RUN python /app/init_db.py
 
 
 EXPOSE 5000

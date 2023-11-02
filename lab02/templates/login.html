@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="robots" content="follow,index">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <meta name="msapplication-TileColor" content="#6371C5">
+    <meta name="theme-color" content="#6371C5">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/index.cdd05366.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/index.6a037238.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/index.450f7d83.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', path='images/favicon.ico') }}" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-25065548-2"></script>
+    <script>
+        function gtag() {
+            dataLayer.push(arguments)
+        }
+        window.dataLayer = window.dataLayer || [],
+            gtag("js", new Date),
+            gtag("config", "UA-25065548-2");
+    </script>
+</head>
+
+<body>
+    <div class="content-body">
+        <div class="form-wrapper">
+            <form class="bg-white">
+                <h1 class="text-title">Login to your account</h1>
+                <div class="field-group">
+                    <label class="label" for="txt-email">Email address/username</label>
+                    <input class="input" id="txt-email" name="username" placeholder="Enter username">
+                </div>
+                <div class="field-group">
+                    <label class="label" for="txt-password">Password</label>
+                    <input class="input" type="password" id="txt-password" name="password" placeholder="Enter password">
+                </div>
+                <div class="field-group">
+                    <input class="btn-submit" type="button" onclick="performLogin()" value="Log In">
+                </div>
+            </form>
+            <script>
+                function performLogin() {
+                    var username = document.getElementById("txt-email").value;
+                    var password = document.getElementById("txt-password").value;
+                    var formData = new FormData();
+                    formData.append("username", username);
+                    formData.append("password", password);
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "/api/login", true);
+                    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                // Successful login
+                                window.location.href = "/";
+                            } else {
+                                // Login failed
+                                alert("Login failed. Check your credentials.");
+                            }
+                        }
+                    };
+                    xhr.send(formData);
+                }
+            </script>
+            <div class="bg-grey">
+                <a href="./join.html" class="link-register">Sign Up</a>
+                <a href="/" class="link-register">Back To Home</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

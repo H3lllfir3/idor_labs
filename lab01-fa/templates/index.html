@@ -67,6 +67,7 @@
           <span class="span three"></span>
         </button> {% if authenticated %}
                 <p>Hello, {{ user_data.username }}! </p>
+                <a href="/profile" class="btn">Profile</a>
                 <a href="/logout" class="btn">Logout</a> {% else %}
                 <a href="/login" class="btn">Login</a> {% endif %}
                 <!-- <a href="/login" class="btn">Login</a> -->

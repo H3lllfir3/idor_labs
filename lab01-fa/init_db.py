@@ -40,8 +40,10 @@ for _ in range(9):
         'address': fake.address(),
         'phone': fake.phone_number()
     }
+    print(user_data)
     query = sqlalchemy.insert(User).values(**user_data)
     conn.execute(query)
+    print(query)
 
 
 conn.close()

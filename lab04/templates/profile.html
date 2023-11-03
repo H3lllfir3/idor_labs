@@ -50,7 +50,7 @@
         const passwordInput = document.getElementById('password');
 
         const xhr = new XMLHttpRequest();
-        xhr.open('GET', `/api/user/me`);
+        xhr.open('GET', `/api/v2/user/${userID}`);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {

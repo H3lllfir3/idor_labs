@@ -82,27 +82,24 @@ def get_current_user(user: str = Cookie(None)):
             'username': current_user.username,
             'password': current_user.password,
             'name': current_user.name,
-            'email': current_user.email
+            'email': current_user.email,
+            'id': current_user.id
+
         }
         return user_data
 
     raise HTTPException(status_code=401, detail="Not authenticated or unauthorized")
 
-@app.get("/api/user/me", response_model=dict)
-async def profile_data(user: str = Cookie(None), id: int = None, current_user: dict = Depends(get_current_user)):
+@app.get("/api/v2/user/{id}", response_model=dict)
+async def profile_data(id: int, user: str = Cookie(None), current_user: dict = Depends(get_current_user)):
 
-    if id is None:
-         
-        return current_user
-    else:
-         
+    if id == current_user.get('id'):
         db = SessionLocal()
         requested_user = db.query(User).filter(User.id == id).first()
         db.close()
         if requested_user:
             user_data = {
                 'username': requested_user.username,
-                'password': requested_user.password,
                 'name': requested_user.name,
                 'email': requested_user.email
             }
@@ -110,6 +107,21 @@ async def profile_data(user: str = Cookie(None), id: int = None, current_user: d
 
     raise HTTPException(status_code=401, detail="Not authenticated or unauthorized")
 
+@app.get("/api/v1/user/{id}", response_model=dict)
+async def profile_data(id: int):
+
+    db = SessionLocal()
+    requested_user = db.query(User).filter(User.id == id).first()
+    db.close()
+    if requested_user:
+        user_data = {
+            'username': requested_user.username,
+            'name': requested_user.name,
+            'email': requested_user.email
+        }
+        return user_data
+
+    raise HTTPException(status_code=401, detail="Not authenticated or unauthorized")
 
 @app.get("/profile", response_class=templates.TemplateResponse)
 async def profile_template(request: Request, user: str = Cookie(None)):
@@ -124,4 +136,4 @@ async def profile_template(request: Request, user: str = Cookie(None)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=5000)

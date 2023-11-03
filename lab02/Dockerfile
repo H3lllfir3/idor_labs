@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.8.18-alpine3.17
 
 WORKDIR /app
 
@@ -8,10 +8,11 @@ RUN pip install -r requirements.txt
 
 COPY . /app
 
-RUN python init_db.py
+RUN python /app/init_db.py
+RUN chmod 777 database.db
 
 
-EXPOSE 8000
+EXPOSE 5000
 
 
 CMD ["python", "app.py"]
